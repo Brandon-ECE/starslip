@@ -1,6 +1,6 @@
 // StarSlip. Copyright (c) 2026 Brandon-ECE. All rights reserved.
 // StarSlip offline cache. Bump VERSION whenever you change a file.
-const VERSION = "starslip-v2";
+const VERSION = "starslip-v3";
 const FILES = ["./", "index.html", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png",
   "icons/apple-touch-icon.png", "icons/favicon-48.png"];

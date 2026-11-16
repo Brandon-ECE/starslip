@@ -13,15 +13,19 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="StarSlip">
+<meta property="og:title" content="StarSlip">
+<meta property="og:description" content="Tap to slip free. Catch the next orbit. Can you beat my score?">
+<meta property="og:image" content="https://brandon-ece.github.io/starslip/icons/icon-1024.png">
+<meta property="og:url" content="https://brandon-ece.github.io/starslip/">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/favicon-48.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
 <style>
-/* Layout: one full-screen canvas, score floating on top, overlays for start and game over. Single night-sky look. */
+/* Layout: one full-screen canvas, score floating on top, overlays for menu and game over. Single night-sky look. */
 :root{
-  --bg:#0d0b24; --fg:#fff7ec; --muted:#b7b0d8; --coral:#ff7a6b; --mint:#6ff2c2; --sun:#ffd166;
+  --bg:#0d0b24; --fg:#fff7ec; --muted:#b7b0d8; --coral:#ff7a6b; --mint:#6ff2c2; --sun:#ffd166; --violet:#b18cff;
   --font:"Fredoka","Trebuchet MS",system-ui,sans-serif;
   color-scheme:dark;
 }
@@ -34,18 +38,43 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);overf
 #score{position:absolute;left:0;right:0;top:max(18px,env(safe-area-inset-top,0px));text-align:center;font-size:56px;font-weight:700;
   pointer-events:none;text-shadow:0 4px 0 rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
 #best{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:max(16px,env(safe-area-inset-top,0px));font-size:14px;color:var(--muted);pointer-events:none}
-.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px;
-  background:rgba(13,11,36,.55)}
+#mute{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:max(10px,env(safe-area-inset-top,0px));width:44px;height:44px;border-radius:50%;
+  border:0;background:rgba(255,247,236,.08);color:var(--fg);display:grid;place-items:center;cursor:pointer;z-index:4}
+#mute svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#mute:focus-visible{outline:3px solid var(--sun)}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;text-align:center;overflow-y:auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:64px 24px;
+  background:rgba(13,11,36,.62);z-index:3}
+.ov > :first-child{margin-top:auto}
+.ov > :last-child{margin-bottom:auto}
 .ov h1{margin:0;font-size:58px;line-height:.95;font-weight:700;letter-spacing:.01em}
 .ov h1 span{color:var(--sun)}
-.ov p{margin:0;color:var(--muted);font-size:17px;max-width:26ch;text-wrap:balance}
+.ov p{margin:0;color:var(--muted);font-size:17px;max-width:28ch;text-wrap:balance}
 .ov .num{font-size:72px;font-weight:700;color:var(--sun);line-height:1}
 .btn{font-family:var(--font);font-size:22px;font-weight:700;background:var(--coral);color:#2a0f0b;border:0;border-radius:999px;
   padding:14px 40px;cursor:pointer;box-shadow:0 5px 0 #c4483b}
 .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #c4483b}
-.btn:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
-.hint{font-size:14px;color:var(--muted)}
+.btn2{font-family:var(--font);font-size:18px;font-weight:600;background:transparent;color:var(--fg);border:2px solid rgba(255,247,236,.35);
+  border-radius:999px;padding:11px 22px;cursor:pointer}
+.btn:focus-visible,.btn2:focus-visible,.modes button:focus-visible,.skin:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.hint{font-size:14px;color:var(--muted);max-width:30ch}
+.small{font-size:12px;opacity:.7}
+.modes{display:flex;gap:4px;background:rgba(255,247,236,.08);padding:4px;border-radius:999px}
+.modes button{font-family:var(--font);font-size:15px;font-weight:600;border:0;border-radius:999px;padding:8px 16px;background:transparent;color:var(--muted);cursor:pointer}
+.modes button.on{background:var(--fg);color:#0d0b24}
+.sectlabel{font-size:12px;letter-spacing:.16em;color:var(--muted);margin-top:4px}
+.skins{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding-bottom:16px}
+.skin{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,247,236,.15);background:rgba(255,247,236,.05);cursor:pointer;position:relative;padding:0;display:grid;place-items:center}
+.skin.on{border-color:var(--sun);box-shadow:0 0 0 3px rgba(255,209,102,.25)}
+.skin .dot{width:20px;height:20px;border-radius:50%}
+.skin.locked{cursor:default}
+.skin.locked .dot{opacity:.25}
+.skin .need{position:absolute;top:46px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap}
+.unlock{color:var(--mint);font-weight:600;font-size:17px}
+.support{color:var(--sun);font-size:15px;text-decoration:none;border-bottom:1px dashed rgba(255,209,102,.5);padding-bottom:1px}
+.toast{position:absolute;left:50%;bottom:max(28px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:#0d0b24;
+  font-weight:600;padding:10px 18px;border-radius:999px;font-size:15px;z-index:6;white-space:nowrap}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
 </head>
@@ -54,16 +83,71 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);overf
   <canvas id="cv" aria-label="StarSlip game"></canvas>
   <div id="score" hidden>0</div>
   <div id="best"></div>
-  <div class="ov" id="ov">
-    <h1>STAR<span>SLIP</span></h1>
-    <p>Tap to slip free. Catch the next orbit.</p>
-    <button class="btn" id="go">PLAY</button>
-    <span class="hint">Grab stars on the way for bonus points.</span>
-    <span class="hint" style="font-size:12px;opacity:.7">© 2026 Brandon-ECE. All rights reserved.</span>
-  </div>
+  <button id="mute" type="button" aria-label="Sound and vibration on"></button>
+  <div class="ov" id="ov"></div>
 </div>
 
 <script>
+/* ---------- settings you can change ---------- */
+const CFG={
+  DONATE_URL:"",                                   // e.g. "https://venmo.com/u/YourHandle". Empty hides the button.
+  DONATE_TEXT:"Enjoying StarSlip? Tip the developer",
+  SITE:"https://brandon-ece.github.io/starslip/"
+};
+
+/* ---------- storage ---------- */
+const store={get(k,d){try{const v=localStorage.getItem("starslip-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("starslip-"+k,JSON.stringify(v))}catch(e){}}};
+let best=store.get("best",0);
+try{const ob=+localStorage.getItem("orbithop-best")||0;if(ob>best){best=ob;store.set("best",best);}}catch(e){}
+let record=Math.max(best,store.get("record",0));
+let skinId=store.get("skin","classic"), muted=store.get("muted",false), mode="endless";
+
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function todayLabel(){return new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});}
+function dailyBest(){const v=store.get("daily",null);return v&&v.d===todayKey()?v.s:0;}
+function hashStr(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ---------- skins ---------- */
+const SKINS=[
+  {id:"classic",name:"Classic",need:0, col:"#fff7ec"},
+  {id:"mint",   name:"Mint",   need:10,col:"#6ff2c2"},
+  {id:"ember",  name:"Ember",  need:20,col:"#ff7a6b"},
+  {id:"gold",   name:"Gold",   need:35,col:"#ffd166"},
+  {id:"nova",   name:"Nova",   need:50,col:"#b18cff"},
+  {id:"prism",  name:"Prism",  need:75,col:"rainbow"},
+];
+function skin(){const s=SKINS.find(s=>s.id===skinId);return s&&record>=s.need?s:SKINS[0];}
+function skinCol(i,t){const s=skin();return s.col==="rainbow"?`hsl(${(i*16+t*140)%360},95%,72%)`:s.col;}
+
+/* ---------- sound + vibration ---------- */
+let AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}
+  if(AC&&AC.state==="suspended")AC.resume();return AC;}
+function tone(f,dur,type,vol,f2,delay){if(muted)return;const a=ac();if(!a)return;const t=a.currentTime+(delay||0);
+  const o=a.createOscillator(),g=a.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,t);
+  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.15,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+0.03);}
+function buzz(p){if(muted)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
+const SFX={
+  release(){tone(260,.14,"triangle",.12,640);buzz(8);},
+  land(n){const f=440*Math.pow(2,Math.min(n,24)/24);tone(f,.2,"sine",.16);tone(f*1.5,.24,"sine",.07,null,.05);buzz(14);},
+  star(){tone(1320,.09,"square",.04,1760);},
+  power(){[523,659,784,1047].forEach((f,i)=>tone(f,.13,"triangle",.1,null,i*.06));buzz([20,40,20]);},
+  save(){tone(392,.28,"sine",.16,784);buzz([30,30,30]);},
+  over(){tone(330,.6,"sawtooth",.07,70);buzz([60,40,140]);}
+};
+const muteBtn=document.getElementById("mute");
+function drawMute(){muteBtn.innerHTML=muted
+  ?'<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
+  :'<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+  muteBtn.setAttribute("aria-label",muted?"Sound and vibration off":"Sound and vibration on");}
+muteBtn.addEventListener("click",()=>{muted=!muted;store.set("muted",muted);drawMute();if(!muted){ac();tone(660,.12,"sine",.12);}});
+drawMute();
+
+/* ---------- canvas ---------- */
 const cv=document.getElementById("cv"),cx=cv.getContext("2d");
 let W=0,H=0,DPR=1;
 function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;
@@ -71,71 +155,81 @@ function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(2,window.devic
 new ResizeObserver(resize).observe(cv);resize();
 
 const HUES=["#ff7a6b","#6ff2c2","#ffd166","#8fa8ff","#ff9ad5","#9be15d"];
-let best=0;try{best=+localStorage.getItem("orbithop-best")||0}catch(e){}
-const bestEl=document.getElementById("best"),scoreEl=document.getElementById("score");
-function showBest(){bestEl.textContent=best?"BEST "+best:"";}
-showBest();
-
-// background stars (screen-space with parallax)
+const POWERS={shield:{col:"#6ff2c2",name:"SHIELD"},slow:{col:"#8fa8ff",name:"SLOW-MO"},magnet:{col:"#ff9ad5",name:"MAGNET"}};
+const bestEl=document.getElementById("best"),scoreEl=document.getElementById("score"),ov=document.getElementById("ov");
+function showBest(){bestEl.textContent=(S&&S.mode==="play")?(S.daily?"TODAY "+dailyBest():"BEST "+best):"";}
 const sky=[...Array(90)].map(()=>({x:Math.random(),y:Math.random(),s:Math.random()*1.6+.4,p:Math.random()*.5+.1,tw:Math.random()*6}));
 
-let S; // game state
-function newState(){
-  return {mode:"idle",score:0,camY:0,t:0,planets:[],stars:[],trail:[],bursts:[],
-    p:{state:"orbit",pl:null,a:-Math.PI/2,dir:1,x:0,y:0,vx:0,vy:0,fly:0,from:null},nextIdx:0,maxIdx:0,shake:0};
+let S=null;
+function newState(daily){
+  return {mode:"idle",daily,rng:daily?mulberry32(hashStr("starslip-"+todayKey())):mulberry32((Math.random()*2**32)>>>0),
+    score:0,camY:0,t:0,planets:[],stars:[],powers:[],trail:[],bursts:[],pops:[],
+    p:{state:"orbit",pl:null,a:-Math.PI/2,dir:1,x:0,y:0,vx:0,vy:0,fly:0,from:null},
+    nextIdx:0,maxIdx:0,shake:0,shield:false,slowT:0,magT:0,flash:0};
 }
 function gap(){return Math.max(150,Math.min(240,H*0.29));}
 function addPlanet(){
-  const i=S.nextIdx++;
+  const R=S.rng,i=S.nextIdx++;
   const prev=S.planets[S.planets.length-1];
   const lvl=Math.min(1,i/30);
-  const orbitR=58-16*lvl+Math.random()*8;
+  const orbitR=58-16*lvl+R()*8;
   const margin=orbitR+18;
   let x;
   if(!prev) x=W/2;
-  else {do{x=margin+Math.random()*(W-2*margin);}while(Math.abs(x-prev.bx)<W*0.18&&W>300);}
-  const y=prev?prev.y-gap()*(0.85+Math.random()*0.3):H*0.68;
-  const moving=i>8&&Math.random()<Math.min(0.6,(i-8)*0.05);
+  else {let tries=0;do{x=margin+R()*(W-2*margin);tries++;}while(Math.abs(x-prev.bx)<W*0.18&&W>300&&tries<20);}
+  const y=prev?prev.y-gap()*(0.85+R()*0.3):H*0.68;
+  const moving=i>8&&R()<Math.min(0.6,(i-8)*0.05);
   if(moving) x=W/2;
   const pl={i,bx:x,x,y,r:orbitR*0.42,orbitR,hue:HUES[i%HUES.length],
-    spin:(Math.random()<.5?1:-1),omega:(2.1+lvl*1.6)*(0.9+Math.random()*0.2),
-    amp:moving?Math.min(W*0.28,W/2-margin):0,mf:0.6+Math.random()*0.6,mph:Math.random()*6};
+    spin:(R()<.5?1:-1),omega:(2.1+lvl*1.6)*(0.9+R()*0.2),
+    amp:moving?Math.min(W*0.28,W/2-margin):0,mf:0.6+R()*0.6,mph:R()*6};
   S.planets.push(pl);
-  if(prev&&Math.random()<0.55){ // a star somewhere between the two planets
-    const f=0.35+Math.random()*0.3;
-    S.stars.push({x:prev.bx+(x-prev.bx)*f+(Math.random()-.5)*60,y:prev.y+(y-prev.y)*f,got:false,ph:Math.random()*6});
-  }
+  if(prev&&R()<0.55){const f=0.35+R()*0.3;
+    S.stars.push({x:prev.bx+(x-prev.bx)*f+(R()-.5)*60,y:prev.y+(y-prev.y)*f,got:false,ph:R()*6});}
+  if(prev&&i>4&&R()<0.15){const f=0.5+R()*0.25,types=Object.keys(POWERS);
+    S.powers.push({type:types[Math.floor(R()*types.length)],x:prev.bx+(x-prev.bx)*f+(R()-.5)*90,y:prev.y+(y-prev.y)*f,got:false,ph:R()*6});}
 }
 function start(){
-  S=newState();S.mode="play";
+  ac();
+  S=newState(mode==="daily");S.mode="play";
   for(let k=0;k<7;k++)addPlanet();
   const p=S.p;p.pl=S.planets[0];p.dir=p.pl.spin;
   S.camY=p.pl.y-H*0.68;
-  document.getElementById("ov").hidden=true;scoreEl.hidden=false;scoreEl.textContent="0";
+  ov.hidden=true;scoreEl.hidden=false;scoreEl.textContent="0";showBest();
 }
 function release(){
   if(!S||S.mode!=="play")return;
   const p=S.p;if(p.state!=="orbit")return;
-  const pl=p.pl,speed=Math.max(480,H*0.75);
+  const speed=Math.max(480,H*0.75);
   p.vx=-Math.sin(p.a)*p.dir*speed;p.vy=Math.cos(p.a)*p.dir*speed;
-  p.state="fly";p.fly=0;p.from=pl;
+  p.state="fly";p.fly=0;p.from=p.pl;SFX.release();
 }
-function over(){
-  S.mode="over";S.shake=12;
-  burst(S.p.x,S.p.y,"#ff7a6b",26);
-  if(S.score>best){best=S.score;try{localStorage.setItem("orbithop-best",best)}catch(e){}}
-  showBest();
-  setTimeout(()=>{
-    const ov=document.getElementById("ov");
-    ov.innerHTML=`<p>Slipped into the void</p><div class="num">${S.score}</div><p>Best: ${best}</p><button class="btn" id="go">AGAIN</button>`;
-    ov.hidden=false;scoreEl.hidden=true;document.getElementById("go").onclick=start;
-  },650);
-}
+function pop(x,y,txt,col){S.pops.push({x,y,txt,col,life:1.1});}
 function burst(x,y,col,n){for(let i=0;i<n;i++){const a=Math.random()*7,s=40+Math.random()*200;
   S.bursts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.7,col});}}
 function addScore(n,x,y,col){S.score+=n;scoreEl.textContent=S.score;burst(x,y,col,12);}
 
-function update(dt){
+function over(){
+  S.mode="over";S.shake=12;SFX.over();
+  burst(S.p.x,S.p.y,"#ff7a6b",26);
+  const sc=S.score;let newBest=false;
+  if(S.daily){if(sc>dailyBest()){store.set("daily",{d:todayKey(),s:sc});newBest=sc>0;}}
+  else if(sc>best){best=sc;store.set("best",best);newBest=true;}
+  const before=record;if(sc>record){record=sc;store.set("record",record);}
+  const unlocked=SKINS.filter(s=>s.need>before&&s.need<=record);
+  bestEl.textContent="";
+  setTimeout(()=>showOver(sc,newBest,unlocked),650);
+}
+function saveWithShield(){
+  const p=S.p;S.shield=false;
+  const pl=(p.from&&S.planets.includes(p.from))?p.from:(S.planets.find(q=>q.i===S.maxIdx)||S.planets[0]);
+  p.state="orbit";p.pl=pl;p.a=Math.atan2(p.y-pl.y,p.x-pl.x);p.dir=pl.spin;
+  S.flash=.4;SFX.save();burst(pl.x,pl.y,"#6ff2c2",24);pop(pl.x,pl.y-pl.orbitR-20,"SHIELD SAVED YOU","#6ff2c2");
+}
+
+function update(rdt){
+  S.slowT=Math.max(0,S.slowT-rdt);S.magT=Math.max(0,S.magT-rdt);S.flash=Math.max(0,S.flash-rdt);
+  const dt=rdt*(S.slowT>0?0.55:1);
   S.t+=dt;
   for(const pl of S.planets) pl.x=pl.bx+(pl.amp?Math.sin(S.t*pl.mf+pl.mph)*pl.amp:0);
   const p=S.p;
@@ -145,34 +239,55 @@ function update(dt){
       p.x=pl.x+Math.cos(p.a)*pl.orbitR;p.y=pl.y+Math.sin(p.a)*pl.orbitR;
     } else {
       p.x+=p.vx*dt;p.y+=p.vy*dt;p.fly+=dt;
+      const grab=4+(S.magT>0?22:0);
       for(const pl of S.planets){
         if(pl===p.from&&p.fly<0.35)continue;
         const dx=p.x-pl.x,dy=p.y-pl.y,d=Math.hypot(dx,dy);
-        if(d<=pl.orbitR+4){
+        if(d<=pl.orbitR+grab){
           const a=Math.atan2(dy,dx);
           const tang=(-Math.sin(a))*p.vx+Math.cos(a)*p.vy;
           p.state="orbit";p.pl=pl;p.a=a;p.dir=tang>=0?1:-1;
-          if(pl.i>S.maxIdx){addScore(pl.i-S.maxIdx,pl.x,pl.y,pl.hue);S.maxIdx=pl.i;}
+          if(pl.i>S.maxIdx){addScore(pl.i-S.maxIdx,pl.x,pl.y,pl.hue);S.maxIdx=pl.i;SFX.land(S.score);}
+          else SFX.land(0);
           break;
         }
       }
       const top=S.camY,bot=S.camY+H;
-      if(p.state==="fly"&&(p.x<-30||p.x>W+30||p.y>bot+30||p.y<top-260||p.fly>2.6)){over();}
+      if(p.state==="fly"&&(p.x<-30||p.x>W+30||p.y>bot+30||p.y<top-260||p.fly>2.6)){
+        if(S.shield)saveWithShield();else{over();}
+      }
     }
-    for(const s of S.stars){if(!s.got&&Math.hypot(s.x-p.x,s.y-p.y)<22){s.got=true;addScore(1,s.x,s.y,"#ffd166");}}
-    // camera follows the current planet
-    if(p.state==="orbit"){const target=p.pl.y-H*0.68;S.camY+=(target-S.camY)*Math.min(1,dt*3.2);}
-    // keep planets coming, drop old ones
+    for(const s of S.stars){if(s.got)continue;
+      const d=Math.hypot(s.x-p.x,s.y-p.y);
+      if(S.magT>0&&d<170){s.x+=(p.x-s.x)/d*300*rdt;s.y+=(p.y-s.y)/d*300*rdt;}
+      if(d<22){s.got=true;addScore(1,s.x,s.y,"#ffd166");SFX.star();}}
+    for(const w of S.powers){if(!w.got&&Math.hypot(w.x-p.x,w.y-p.y)<26){w.got=true;SFX.power();
+      burst(w.x,w.y,POWERS[w.type].col,18);pop(w.x,w.y-24,POWERS[w.type].name,POWERS[w.type].col);
+      if(w.type==="shield")S.shield=true;if(w.type==="slow")S.slowT=7;if(w.type==="magnet")S.magT=8;}}
+    if(p.state==="orbit"){const target=p.pl.y-H*0.68;S.camY+=(target-S.camY)*Math.min(1,rdt*3.2);}
     while(S.planets[S.planets.length-1].y>S.camY-H*0.6)addPlanet();
     S.planets=S.planets.filter(pl=>pl.y<S.camY+H+200||pl===p.pl);
-    S.stars=S.stars.filter(s=>s.y<S.camY+H+100);
+    S.stars=S.stars.filter(s=>s.y<S.camY+H+100);S.powers=S.powers.filter(w=>w.y<S.camY+H+100);
     S.trail.push({x:p.x,y:p.y});if(S.trail.length>22)S.trail.shift();
   }
-  for(const b of S.bursts){b.x+=b.vx*dt;b.y+=b.vy*dt;b.vx*=.95;b.vy*=.95;b.life-=dt;}
+  for(const b of S.bursts){b.x+=b.vx*rdt;b.y+=b.vy*rdt;b.vx*=.95;b.vy*=.95;b.life-=rdt;}
   S.bursts=S.bursts.filter(b=>b.life>0);
-  S.shake=Math.max(0,S.shake-40*dt);
+  for(const q of S.pops){q.y-=40*rdt;q.life-=rdt;}S.pops=S.pops.filter(q=>q.life>0);
+  S.shake=Math.max(0,S.shake-40*rdt);
 }
 
+/* ---------- drawing ---------- */
+function star(x,y,R,r,col){cx.fillStyle=col;cx.shadowColor=col;cx.shadowBlur=10;cx.beginPath();
+  for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rad=i%2?r:R;cx.lineTo(x+Math.cos(a)*rad,y+Math.sin(a)*rad);}
+  cx.closePath();cx.fill();cx.shadowBlur=0;}
+function powerIcon(type,x,y,r){
+  const c=POWERS[type].col;
+  cx.shadowColor=c;cx.shadowBlur=14;cx.fillStyle=c;cx.beginPath();cx.arc(x,y,r,0,7);cx.fill();cx.shadowBlur=0;
+  cx.strokeStyle="#0d0b24";cx.fillStyle="#0d0b24";cx.lineWidth=r*0.18;cx.lineCap="round";
+  if(type==="shield"){cx.beginPath();cx.moveTo(x,y-r*.55);cx.lineTo(x+r*.45,y-r*.35);cx.lineTo(x+r*.38,y+r*.2);cx.lineTo(x,y+r*.55);cx.lineTo(x-r*.38,y+r*.2);cx.lineTo(x-r*.45,y-r*.35);cx.closePath();cx.stroke();}
+  if(type==="slow"){cx.beginPath();cx.moveTo(x-r*.4,y-r*.5);cx.lineTo(x+r*.4,y-r*.5);cx.lineTo(x-r*.4,y+r*.5);cx.lineTo(x+r*.4,y+r*.5);cx.closePath();cx.stroke();}
+  if(type==="magnet"){cx.beginPath();cx.arc(x,y,r*.38,0,Math.PI);cx.moveTo(x-r*.38,y);cx.lineTo(x-r*.38,y-r*.45);cx.moveTo(x+r*.38,y);cx.lineTo(x+r*.38,y-r*.45);cx.stroke();}
+}
 function draw(){
   cx.save();
   const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0d0b24");g.addColorStop(1,"#241a4a");
@@ -182,42 +297,100 @@ function draw(){
     cx.fillStyle="#fff7ec";cx.fillRect(s.x*W,y,s.s,s.s);}
   cx.globalAlpha=1;
   if(!S){cx.restore();return;}
+  if(S.slowT>0){cx.fillStyle="rgba(143,168,255,.07)";cx.fillRect(0,0,W,H);}
   if(S.shake)cx.translate((Math.random()-.5)*S.shake,(Math.random()-.5)*S.shake);
-  cx.translate(0,-cam);
-  // planets
+  cx.save();cx.translate(0,-cam);
   for(const pl of S.planets){
     const cur=S.p.pl===pl&&S.p.state==="orbit";
     cx.strokeStyle=pl.hue;cx.globalAlpha=cur?.55:.3;cx.lineWidth=2;cx.setLineDash([4,7]);
-    cx.beginPath();cx.arc(pl.x,pl.y,pl.orbitR,0,7);cx.stroke();cx.setLineDash([]);cx.globalAlpha=1;
+    cx.beginPath();cx.arc(pl.x,pl.y,pl.orbitR,0,7);cx.stroke();cx.setLineDash([]);
+    if(S.magT>0){cx.globalAlpha=.12;cx.lineWidth=22;cx.strokeStyle="#ff9ad5";cx.beginPath();cx.arc(pl.x,pl.y,pl.orbitR+11,0,7);cx.stroke();}
+    cx.globalAlpha=1;
     cx.shadowColor=pl.hue;cx.shadowBlur=24;cx.fillStyle=pl.hue;cx.beginPath();cx.arc(pl.x,pl.y,pl.r,0,7);cx.fill();cx.shadowBlur=0;
     cx.fillStyle="rgba(255,255,255,.25)";cx.beginPath();cx.arc(pl.x-pl.r*.3,pl.y-pl.r*.3,pl.r*.35,0,7);cx.fill();
     cx.fillStyle="rgba(0,0,0,.12)";cx.beginPath();cx.arc(pl.x+pl.r*.25,pl.y+pl.r*.2,pl.r*.22,0,7);cx.fill();
   }
-  // stars to collect
-  for(const s of S.stars){if(s.got)continue;const k=1+.15*Math.sin(S.t*5+s.ph);
-    star(s.x,s.y,9*k,4.2*k,"#ffd166");}
-  // trail + player
+  for(const s of S.stars){if(s.got)continue;const k=1+.15*Math.sin(S.t*5+s.ph);star(s.x,s.y,9*k,4.2*k,"#ffd166");}
+  for(const w of S.powers){if(w.got)continue;powerIcon(w.type,w.x,w.y+Math.sin(S.t*3+w.ph)*3,14);}
   for(let i=0;i<S.trail.length;i++){const tr=S.trail[i],a=i/S.trail.length;
-    cx.globalAlpha=a*.5;cx.fillStyle="#fff7ec";cx.beginPath();cx.arc(tr.x,tr.y,6*a+1,0,7);cx.fill();}
+    cx.globalAlpha=a*.55;cx.fillStyle=skinCol(i,S.t);cx.beginPath();cx.arc(tr.x,tr.y,6*a+1,0,7);cx.fill();}
   cx.globalAlpha=1;
-  if(S.mode!=="over"){cx.shadowColor="#fff7ec";cx.shadowBlur=16;cx.fillStyle="#fff7ec";cx.beginPath();cx.arc(S.p.x,S.p.y,8,0,7);cx.fill();cx.shadowBlur=0;}
+  if(S.mode!=="over"){const hc=skinCol(S.trail.length,S.t);
+    cx.shadowColor=hc;cx.shadowBlur=16;cx.fillStyle=hc;cx.beginPath();cx.arc(S.p.x,S.p.y,8,0,7);cx.fill();cx.shadowBlur=0;
+    if(S.shield){cx.strokeStyle="#6ff2c2";cx.lineWidth=2.5;cx.globalAlpha=.6+.3*Math.sin(S.t*6);cx.beginPath();cx.arc(S.p.x,S.p.y,15,0,7);cx.stroke();cx.globalAlpha=1;}}
   for(const b of S.bursts){cx.globalAlpha=Math.max(0,b.life/.7);cx.fillStyle=b.col;cx.beginPath();cx.arc(b.x,b.y,3,0,7);cx.fill();}
   cx.globalAlpha=1;
+  for(const q of S.pops){cx.globalAlpha=Math.min(1,q.life*1.5);cx.fillStyle=q.col;cx.font='700 16px Fredoka, sans-serif';cx.textAlign="center";cx.fillText(q.txt,q.x,q.y);}
+  cx.globalAlpha=1;
+  cx.restore();
+  // active power-up timers (screen space, under the mute button)
+  if(S.mode==="play"){let y=72;const x=Math.max(12,0)+10;
+    const act=[];if(S.shield)act.push(["shield",1]);if(S.slowT>0)act.push(["slow",S.slowT/7]);if(S.magT>0)act.push(["magnet",S.magT/8]);
+    for(const [tp,f] of act){powerIcon(tp,x+12,y,11);cx.fillStyle="rgba(255,247,236,.15)";cx.fillRect(x+30,y-3,56,6);
+      cx.fillStyle=POWERS[tp].col;cx.fillRect(x+30,y-3,56*f,6);y+=30;}}
+  if(S.flash>0){cx.fillStyle=`rgba(111,242,194,${S.flash*.3})`;cx.fillRect(0,0,W,H);}
   cx.restore();
 }
-function star(x,y,R,r,col){cx.fillStyle=col;cx.shadowColor=col;cx.shadowBlur=10;cx.beginPath();
-  for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rad=i%2?r:R;cx.lineTo(x+Math.cos(a)*rad,y+Math.sin(a)*rad);}
-  cx.closePath();cx.fill();cx.shadowBlur=0;}
 
+/* ---------- menus ---------- */
+function supportHTML(){return CFG.DONATE_URL?`<a class="support" href="${CFG.DONATE_URL}" target="_blank" rel="noopener">${CFG.DONATE_TEXT}</a>`:"";}
+function skinsHTML(){return SKINS.map(s=>{const locked=record<s.need,on=skin().id===s.id;
+  const bg=s.col==="rainbow"?"conic-gradient(#ff7a6b,#ffd166,#6ff2c2,#8fa8ff,#ff9ad5,#ff7a6b)":s.col;
+  return `<button class="skin${on?" on":""}${locked?" locked":""}" data-skin="${s.id}" type="button" aria-label="${s.name} comet${locked?", unlocks at "+s.need:""}" ${locked?"aria-disabled=\"true\"":""}><span class="dot" style="background:${bg}"></span>${locked?`<span class="need">${s.need}</span>`:""}</button>`;}).join("");}
+function showHome(){
+  const db=dailyBest();
+  ov.innerHTML=`<h1>STAR<span>SLIP</span></h1>
+    <p>Tap to slip free. Catch the next orbit.</p>
+    <div class="modes" role="group" aria-label="Game mode">
+      <button type="button" id="mEndless" class="${mode==="endless"?"on":""}">Endless</button>
+      <button type="button" id="mDaily" class="${mode==="daily"?"on":""}">Daily · ${todayLabel()}</button>
+    </div>
+    <span class="hint">${mode==="daily"?`Same planets for everyone today. Your best today: ${db}`:`Best: ${best}`}</span>
+    <button class="btn" id="go" type="button">PLAY</button>
+    <span class="sectlabel">COMET</span>
+    <div class="skins">${skinsHTML()}</div>
+    <span class="hint">Grab stars for points. Power-ups: <b style="color:#6ff2c2">shield</b>, <b style="color:#8fa8ff">slow-mo</b>, <b style="color:#ff9ad5">magnet</b>.</span>
+    ${supportHTML()}
+    <span class="hint small">© 2026 Brandon-ECE. All rights reserved.</span>`;
+  ov.hidden=false;scoreEl.hidden=true;bestEl.textContent="";
+  document.getElementById("go").onclick=start;
+  document.getElementById("mEndless").onclick=()=>{mode="endless";showHome();};
+  document.getElementById("mDaily").onclick=()=>{mode="daily";showHome();};
+  ov.querySelectorAll(".skin").forEach(b=>b.onclick=()=>{const s=SKINS.find(x=>x.id===b.dataset.skin);
+    if(record<s.need){toast(`Score ${s.need} to unlock ${s.name}`);return;}
+    skinId=s.id;store.set("skin",skinId);showHome();});
+}
+function showOver(sc,newBest,unlocked){
+  ov.innerHTML=`<p>${S.daily?"Daily · "+todayLabel():"Slipped into the void"}</p>
+    <div class="num">${sc}</div>
+    <p>${newBest?"New best!":"Best: "+(S.daily?dailyBest():best)}</p>
+    ${unlocked.map(s=>`<div class="unlock">New comet unlocked: ${s.name}</div>`).join("")}
+    <div class="btnrow"><button class="btn" id="again" type="button">AGAIN</button><button class="btn2" id="share" type="button">Share score</button></div>
+    <button class="btn2" id="home" type="button" style="font-size:15px;padding:8px 18px">Menu</button>
+    ${supportHTML()}`;
+  ov.hidden=false;scoreEl.hidden=true;
+  document.getElementById("again").onclick=start;
+  document.getElementById("home").onclick=showHome;
+  document.getElementById("share").onclick=()=>shareScore(sc,S.daily);
+}
+async function shareScore(sc,daily){
+  const txt=daily?`StarSlip Daily (${todayLabel()}): I scored ${sc}. Same planets for everyone today. Beat me:`:`I scored ${sc} on StarSlip. Can you beat me?`;
+  const full=txt+" "+CFG.SITE;
+  if(navigator.share){try{await navigator.share({title:"StarSlip",text:txt,url:CFG.SITE});return;}catch(e){if(e&&e.name==="AbortError")return;}}
+  try{await navigator.clipboard.writeText(full);toast("Copied! Paste it to a friend.");}
+  catch(e){toast("Share this link: brandon-ece.github.io/starslip");}
+}
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.getElementById("stage").appendChild(t);setTimeout(()=>t.remove(),2200);}
+
+/* ---------- loop + input ---------- */
 let last=performance.now();
 function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;if(S)update(dt);draw();requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 document.addEventListener("visibilitychange",()=>{last=performance.now();});
-
 cv.addEventListener("pointerdown",e=>{e.preventDefault();release();});
-document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="Enter"){e.preventDefault();
-  if(S&&S.mode==="play")release();else if(!document.getElementById("ov").hidden)start();}});
-document.getElementById("go").onclick=start;
+document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="Enter"){
+  if(S&&S.mode==="play"){e.preventDefault();release();}}});
+showHome();
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body>
