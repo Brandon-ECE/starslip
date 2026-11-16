@@ -31,8 +31,9 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-html{background:#241a4a}
-body{margin:0;background:#0d0b24 linear-gradient(180deg,#0d0b24 0%,#241a4a 100%) fixed;color:var(--fg);font-family:var(--font);overflow:hidden;
+/* The sky fades to #0d0b24 at the bottom so it matches the strip iPhones paint under installed web apps. */
+html{background:#0d0b24}
+body{margin:0;background:#0d0b24 linear-gradient(180deg,#221a4c 0%,#0d0b24 100%) fixed;color:var(--fg);font-family:var(--font);overflow:hidden;
   -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #stage{position:fixed;top:0;bottom:0;left:0;right:0;max-width:560px;margin:0 auto}
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
@@ -147,13 +148,6 @@ function drawMute(){muteBtn.innerHTML=muted
   muteBtn.setAttribute("aria-label",muted?"Sound and vibration off":"Sound and vibration on");}
 muteBtn.addEventListener("click",()=>{muted=!muted;store.set("muted",muted);drawMute();if(!muted){ac();tone(660,.12,"sine",.12);}});
 drawMute();
-
-/* ---------- iPhone home-screen fix ----------
-   iOS sizes installed web apps one status-bar too short, leaving a strip at the bottom.
-   Pin the game to the phone's real screen height instead. */
-(function(){const st=document.getElementById("stage");
-  function fit(){if(navigator.standalone===true){st.style.bottom="auto";st.style.height=Math.max(window.innerHeight,screen.height)+"px";}}
-  fit();window.addEventListener("resize",fit);window.addEventListener("orientationchange",()=>setTimeout(fit,300));})();
 
 /* ---------- canvas ---------- */
 const cv=document.getElementById("cv"),cx=cv.getContext("2d");
@@ -298,7 +292,7 @@ function powerIcon(type,x,y,r){
 }
 function draw(){
   cx.save();
-  const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0d0b24");g.addColorStop(1,"#241a4a");
+  const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#221a4c");g.addColorStop(0.55,"#17123a");g.addColorStop(1,"#0d0b24");
   cx.fillStyle=g;cx.fillRect(0,0,W,H);
   const cam=S?S.camY:0,t=S?S.t:performance.now()/1000;
   for(const s of sky){const y=((s.y*H-cam*s.p)%H+H)%H;cx.globalAlpha=.35+.35*Math.sin(t*1.5+s.tw);
