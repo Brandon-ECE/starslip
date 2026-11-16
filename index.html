@@ -150,6 +150,7 @@ muteBtn.addEventListener("click",()=>{muted=!muted;store.set("muted",muted);draw
 drawMute();
 
 /* ---------- canvas ---------- */
+const IOS_APP=navigator.standalone===true;   // true only for an iPhone/iPad home-screen app
 const cv=document.getElementById("cv"),cx=cv.getContext("2d");
 let W=0,H=0,DPR=1;
 function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;
@@ -331,11 +332,12 @@ function draw(){
       cx.fillStyle=POWERS[tp].col;cx.fillRect(x+30,y-3,56*f,6);y+=30;}}
   if(S.flash>0){cx.fillStyle=`rgba(111,242,194,${S.flash*.3})`;cx.fillRect(0,0,W,H);}
   cx.restore();
-  // Thin edge fade, drawn after the shake is undone so it never moves.
-  // Things dissolve into the sky color right before the screen's bottom edge.
-  const fh=44,fg=cx.createLinearGradient(0,H-fh,0,H);
-  fg.addColorStop(0,"rgba(34,26,76,0)");fg.addColorStop(0.7,"rgba(34,26,76,0.85)");fg.addColorStop(1,"rgba(34,26,76,1)");
-  cx.fillStyle=fg;cx.fillRect(0,H-fh,W,fh);
+  // iPhone home-screen apps only: iOS cuts the window short at the bottom, so things
+  // dissolve into the sky color right before that line. Drawn after the shake so it never moves.
+  // Android and browsers show the full screen and skip this.
+  if(IOS_APP){const fh=44,fg=cx.createLinearGradient(0,H-fh,0,H);
+    fg.addColorStop(0,"rgba(34,26,76,0)");fg.addColorStop(0.7,"rgba(34,26,76,0.85)");fg.addColorStop(1,"rgba(34,26,76,1)");
+    cx.fillStyle=fg;cx.fillRect(0,H-fh,W,fh);}
 }
 
 /* ---------- menus ---------- */
