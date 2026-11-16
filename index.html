@@ -326,8 +326,8 @@ function draw(){
   cx.globalAlpha=1;
   cx.restore();
   // soft fade at the bottom so planets sink into the dark instead of hitting a hard edge
-  {const fh=Math.min(120,H*0.15);const fg=cx.createLinearGradient(0,H-fh,0,H);
-   fg.addColorStop(0,"rgba(13,11,36,0)");fg.addColorStop(0.6,"rgba(13,11,36,0.75)");fg.addColorStop(1,"rgba(13,11,36,1)");
+  {const fh=Math.min(220,H*0.26);const fg=cx.createLinearGradient(0,H-fh,0,H);
+   fg.addColorStop(0,"rgba(13,11,36,0)");fg.addColorStop(0.35,"rgba(13,11,36,0.55)");fg.addColorStop(0.7,"rgba(13,11,36,0.95)");fg.addColorStop(0.8,"rgba(13,11,36,1)");fg.addColorStop(1,"rgba(13,11,36,1)");
    cx.fillStyle=fg;cx.fillRect(0,H-fh,W,fh);}
   // active power-up timers (screen space, under the mute button)
   if(S.mode==="play"){let y=72;const x=Math.max(12,0)+10;
