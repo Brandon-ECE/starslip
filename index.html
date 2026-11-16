@@ -134,12 +134,12 @@ function tone(f,dur,type,vol,f2,delay){if(muted)return;const a=ac();if(!a)return
   o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+0.03);}
 function buzz(p){if(muted)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 const SFX={
-  release(){tone(260,.14,"triangle",.12,640);buzz(8);},
-  land(n){const f=440*Math.pow(2,Math.min(n,24)/24);tone(f,.2,"sine",.16);tone(f*1.5,.24,"sine",.07,null,.05);buzz(14);},
-  star(){tone(1320,.09,"square",.04,1760);},
-  power(){[523,659,784,1047].forEach((f,i)=>tone(f,.13,"triangle",.1,null,i*.06));buzz([20,40,20]);},
-  save(){tone(392,.28,"sine",.16,784);buzz([30,30,30]);},
-  over(){tone(330,.6,"sawtooth",.07,70);buzz([60,40,140]);}
+  release(){tone(260,.14,"triangle",.12,640);buzz(30);},
+  land(n){const f=440*Math.pow(2,Math.min(n,24)/24);tone(f,.2,"sine",.16);tone(f*1.5,.24,"sine",.07,null,.05);buzz(45);},
+  star(){tone(1320,.09,"square",.04,1760);buzz(20);},
+  power(){[523,659,784,1047].forEach((f,i)=>tone(f,.13,"triangle",.1,null,i*.06));buzz([50,60,50]);},
+  save(){tone(392,.28,"sine",.16,784);buzz([60,40,60]);},
+  over(){tone(330,.6,"sawtooth",.07,70);buzz([120,60,250]);}
 };
 const muteBtn=document.getElementById("mute");
 function drawMute(){muteBtn.innerHTML=muted
