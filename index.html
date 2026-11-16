@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#221a4c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="StarSlip">
 <meta property="og:title" content="StarSlip">
 <meta property="og:description" content="Tap to slip free. Catch the next orbit. Can you beat my score?">
@@ -331,6 +331,11 @@ function draw(){
       cx.fillStyle=POWERS[tp].col;cx.fillRect(x+30,y-3,56*f,6);y+=30;}}
   if(S.flash>0){cx.fillStyle=`rgba(111,242,194,${S.flash*.3})`;cx.fillRect(0,0,W,H);}
   cx.restore();
+  // Thin edge fade, drawn after the shake is undone so it never moves.
+  // Things dissolve into the sky color right before the screen's bottom edge.
+  const fh=44,fg=cx.createLinearGradient(0,H-fh,0,H);
+  fg.addColorStop(0,"rgba(34,26,76,0)");fg.addColorStop(0.7,"rgba(34,26,76,0.85)");fg.addColorStop(1,"rgba(34,26,76,1)");
+  cx.fillStyle=fg;cx.fillRect(0,H-fh,W,fh);
 }
 
 /* ---------- menus ---------- */
