@@ -148,6 +148,13 @@ function drawMute(){muteBtn.innerHTML=muted
 muteBtn.addEventListener("click",()=>{muted=!muted;store.set("muted",muted);drawMute();if(!muted){ac();tone(660,.12,"sine",.12);}});
 drawMute();
 
+/* ---------- iPhone home-screen fix ----------
+   iOS sizes installed web apps one status-bar too short, leaving a strip at the bottom.
+   Pin the game to the phone's real screen height instead. */
+(function(){const st=document.getElementById("stage");
+  function fit(){if(navigator.standalone===true){st.style.bottom="auto";st.style.height=Math.max(window.innerHeight,screen.height)+"px";}}
+  fit();window.addEventListener("resize",fit);window.addEventListener("orientationchange",()=>setTimeout(fit,300));})();
+
 /* ---------- canvas ---------- */
 const cv=document.getElementById("cv"),cx=cv.getContext("2d");
 let W=0,H=0,DPR=1;
