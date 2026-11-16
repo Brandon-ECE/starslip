@@ -325,6 +325,10 @@ function draw(){
   for(const q of S.pops){cx.globalAlpha=Math.min(1,q.life*1.5);cx.fillStyle=q.col;cx.font='700 16px Fredoka, sans-serif';cx.textAlign="center";cx.fillText(q.txt,q.x,q.y);}
   cx.globalAlpha=1;
   cx.restore();
+  // soft fade at the bottom so planets sink into the dark instead of hitting a hard edge
+  {const fh=Math.min(120,H*0.15);const fg=cx.createLinearGradient(0,H-fh,0,H);
+   fg.addColorStop(0,"rgba(13,11,36,0)");fg.addColorStop(0.6,"rgba(13,11,36,0.75)");fg.addColorStop(1,"rgba(13,11,36,1)");
+   cx.fillStyle=fg;cx.fillRect(0,H-fh,W,fh);}
   // active power-up timers (screen space, under the mute button)
   if(S.mode==="play"){let y=72;const x=Math.max(12,0)+10;
     const act=[];if(S.shield)act.push(["shield",1]);if(S.slowT>0)act.push(["slow",S.slowT/7]);if(S.magT>0)act.push(["magnet",S.magT/8]);
